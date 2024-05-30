@@ -37,6 +37,7 @@ class CheckoutController extends Controller
 
     public function index()
     {
+
         $customer = auth()->user();
         $carts = Cart::where('customer_id', $customer->id)->get();
         $total = Cart::where('customer_id', $customer->id)->sum('subtotal');
@@ -47,7 +48,7 @@ class CheckoutController extends Controller
 
 
         // IF USER DOES NOT HAVE ALAMAT SEND TOAST WARNING "ISI ALAMAT TERLEBIH DAHULU"
-        if($alamat === null) {
+        if ($alamat === null) {
             toastr()->info('Isi alamat terlebih dahulu', 'Info', ['timeOut' => 1500]);
             return redirect()->route('account.alamat');
         }
@@ -61,10 +62,11 @@ class CheckoutController extends Controller
 
         $getkota = $alamat[$length - 3];
 
+
+
         // Remove 'Kota' & "Kabupaten" from string
         $kota = str_replace('Kota ', '', $getkota);
         $kota = str_replace('Kabupaten ', '', $kota);
-
 
         // GET PROVINCE ID
         $province = Province::where('name', $getprovinsi)->first();
@@ -72,15 +74,39 @@ class CheckoutController extends Controller
         // GET CITY BY PROVINCE ID LIKE
         $city = City::where('name', $kota)->first();
 
+
         return view('shop.pages.checkout-alamat', compact('customer', 'total', 'total_berat', 'carts', 'city', 'province'));
+    }
+
+
+    public function beliSekarang(Request $request)
+    {
+        $customer = auth()->user();
+
+        // If customer have cart delete all cart
+        Cart::where('customer_id', $customer->id)->delete();
+        
+        Cart::create([
+            'customer_id' => $customer->id,
+            'product_id' => $request->product_id,
+            'quantity' => 1,
+            'total_berat' => $request->berat,
+            'subtotal' => $request->harga_diskon,
+        ]);
+
+        return redirect()->route('shop.checkout-alamat');
+
     }
 
     public function store(Request $request)
     {
+
+        // dd($request->all());
         // Validate request
         $request->validate([
             'ongkir' => 'required',
             'total' => 'required',
+            'metode_pengiriman' => 'required',
         ]);
 
 
@@ -88,6 +114,7 @@ class CheckoutController extends Controller
         $customer = auth()->user();
         $total = $request->total;
         $ongkir = $request->ongkir;
+        $metode_pengiriman = $request->metode_pengiriman;
 
         // Carts from customer
         $carts = Cart::where('customer_id', $customer->id)->get();
@@ -95,6 +122,7 @@ class CheckoutController extends Controller
         Order::create([
             'no_order' => $no_order,
             'customer_id' => $customer->id,
+            'metode_pengiriman' => $metode_pengiriman,
             'ongkir' => $ongkir,
             'total' => $total,
         ]);
@@ -115,7 +143,6 @@ class CheckoutController extends Controller
         toastr()->success('Pesanan berhasil dibuat', 'Success', ['timeOut' => 1500]);
 
         return redirect()->route('shop.checkout-payment', $no_order);
-
     }
 
     public function ongkir(Request $request, $id, $berat)
@@ -145,7 +172,7 @@ class CheckoutController extends Controller
         try {
             $ongkir = RajaOngkir::ongkosKirim($params)->get();
         } catch (\Exception $e) {
-            toastr()->error('Gagal mengambil data ongkir', 'Error', ['timeOut' => 2500]);
+            toastr()->error('Gagal mengambil data ongkir, Coba lagi atau pilih jasa pengiriman lain,', 'Error', ['timeOut' => 2500]);
             return redirect()->back();
         }
         // $ongkir = RajaOngkir::ongkosKirim($params)->get();
@@ -157,8 +184,6 @@ class CheckoutController extends Controller
         $total_berat = Cart::where('customer_id', $customer->id)->sum('total_berat');
 
         return view('shop.pages.checkout-ongkir', compact('dataOngkir', 'total', 'total_berat', 'carts'));
-
-
     }
 
     public function paymentMethod($no_order)
@@ -193,12 +218,15 @@ class CheckoutController extends Controller
         toastr()->info('Silahkan lakukan pembayaran', 'Info', ['timeOut' => 2500]);
 
         return redirect()->route('shop.checkout-konfirmasi', $no_pembayaran);
-
     }
 
     public function konfirmasiPembayaran($no_pembayaran)
     {
         $customer = auth()->user();
+
+        // Jika order telah dibatalkan jangan bolehkan akses ke halaman konfirmasi
+
+
         $payment = Payment::where('no_pembayaran', $no_pembayaran)->first();
         // Get product item in detail order
         $detail_orders = DetailOrder::where('no_order', $payment->no_order)->get();
@@ -219,8 +247,8 @@ class CheckoutController extends Controller
         $payment = Payment::where('no_pembayaran', $no_pembayaran)->first();
 
         $bukti_pembayaran = $request->file('bukti_pembayaran');
-        $bukti_pembayaran_name = time() . '_' . $bukti_pembayaran->getClientOriginalName();
-        $bukti_pembayaran->move(public_path('bukti_pembayaran'), $bukti_pembayaran_name);
+        $bukti_pembayaran_name = 'bukti-pembayaran/' . time() . '-' . $bukti_pembayaran->getClientOriginalName();
+        $bukti_pembayaran->move(public_path('storage/bukti-pembayaran/'), $bukti_pembayaran_name);
 
         $payment->update([
             'bukti_pembayaran' => $bukti_pembayaran_name,
@@ -245,10 +273,18 @@ class CheckoutController extends Controller
         return view('shop.pages.checkout-sukses', compact('customer', 'no_pesanan'));
     }
 
+    // Cancel Order by customers
+    public function cancelOrder($no_order)
+    {
 
 
+        $order = Order::where('no_order', $no_order)->first();
+        $order->update([
+            'status' => 'dibatalkan',
+        ]);
 
+        toastr()->info('Pesanan berhasil dibatalkan', 'Info', ['timeOut' => 2500]);
 
-
-
+        return redirect()->route('order-history');
+    }
 }

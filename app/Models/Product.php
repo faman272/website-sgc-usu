@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 
@@ -12,15 +12,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'id',
-        'nama',
-        'harga',
-        'harga_diskon',
-        'deskripsi',
-        'gambar',
-        'stok',
-    ];
+    protected $guarded = [];
 
     public $incrementing = false;
 
@@ -37,6 +29,12 @@ class Product extends Model
     public function carts()
     {
         return $this->hasMany(Cart::class);
+    }
+
+    // relasi tabel detail_order
+    public function detail_orders(): HasMany
+    {
+        return $this->hasMany(DetailOrder::class);
     }
 
 }

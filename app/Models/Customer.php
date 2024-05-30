@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -11,7 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
 
 
-class Customer extends Authenticatable
+class Customer extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -24,6 +25,7 @@ class Customer extends Authenticatable
         'name',
         'email',
         'password',
+        'google_id',
         'nomor_telepon',
         'alamat',
     ];
@@ -66,9 +68,9 @@ class Customer extends Authenticatable
     }
 
     // Relasi tabel order
-    public function orders()
+    public function orders() : HasMany
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Order::class, 'customer_id', 'id');
     }
 
 }

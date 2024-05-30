@@ -1,31 +1,56 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
-    @endif
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+
+<body class="font-sans antialiased">
+
+
+    @include('shop.components.header')
+
+    @include('shop.components.navbar')
+
+
+    {{-- Verify email section --}}
+
+    <section class="container mt-4 text-center mx-auto max-w-[1200px] bg-white shadow-md py-10">
+        <div class="mx-auto max-w-[600px] px-5">
+            <div class="flex justify-center mt-3">
+                <img src="/image/email.png" alt="" width="25%">
             </div>
-        </form>
+            <h2 class="text-2xl font-bold my-4">Verifikasi Alamat Email Anda</h2>
+            <div class="h-[2px] w-full bg-gray-300"></div>
+            <p class="mt-2 text-gray-500 my-4">Sebelum melanjutkan, silakan periksa email Anda untuk tautan verifikasi. Jika
+                Anda Tidak menerima email, klik tombol di bawah ini untuk meminta link yang baru.</p>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
+            <div class="mt-5">
+                <form method="POST" action="{{ route('verification.send') }}">
+                    @csrf
+                    <button type="submit"
+                        class="px-4 w-full py-3 bg-accent font-semibold text-white text-base rounded-sm hover:bg-accent-dark">Kirim Ulang
+                        Verifikasi Email</button>
+                </form>
+            </div>
+        </div>
+    </section>
 
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
-        </form>
-    </div>
-</x-guest-layout>
+
+    @include('shop.components.footer')
+
+
+</body>
+
+</html>

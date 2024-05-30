@@ -55,7 +55,7 @@
             @foreach ($carts as $item)
                 <div class="flex w-full border px-4 py-4">
                     <img class="self-start object-contain" width="90px" src="/image/{{ $item->product->gambar }}"
-                        alt="bedroom image" />
+                        alt="image" />
                     <div class="ml-3 flex w-full flex-col justify-center">
                         <div class="flex items-center justify-between">
                             <p class="text-xl font-bold uppercase">{{ $item->product->nama }}</p>
@@ -284,10 +284,13 @@
                     @endif
 
                     @foreach ($carts as $item)
+                        @php
+                            $gambar = $item->product->gambar;
+                        @endphp
                         <tr class="border-b">
                             <td class="">
                                 <div class="flex">
-                                    <img class="w-[90px]" src="/image/{{ $item->product->gambar }}"
+                                    <img class="w-[90px]" src="{{ asset("storage/$gambar") }}"
                                         alt="bedroom image" />
                                     <div class="ml-3 flex flex-col justify-center">
                                         <p class="text-xl font-bold uppercase">{{ $item->product->nama }}</p>
@@ -372,13 +375,14 @@
 
                     <div class="flex justify-between py-5">
                         <p>Total Pesanan ({{ $carts->count() }} Produk)</p>
-                        <p class="font-extrabold text-accent text-[24px]">Rp{{ number_format($total, 0, ',', '.') }}</p>
+                        <p class="font-extrabold text-accent text-[24px]">Rp{{ number_format($total, 0, ',', '.') }}
+                        </p>
                     </div>
 
                     <a href="{{ route('shop.checkout-alamat') }}">
-                            <button class="w-full bg-accent px-5 py-2 text-white">
-                                CHECKOUT
-                            </button>
+                        <button class="w-full bg-accent px-5 py-2 text-white">
+                            CHECKOUT
+                        </button>
                     </a>
                     <div class="mt-4 text-center">
                         <a href="/shop" class="underline">

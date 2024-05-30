@@ -25,6 +25,16 @@
     @include('shop.components.header')
     @include('shop.components.navbar')
 
+
+
+    <script>
+        const confirmLogout = document.getElementById('confirm-logout');
+        const closeModal = () => {
+            confirmLogout.classList.add('hidden');
+        }
+    </script>
+
+
     <!-- breadcrumbs  -->
     <nav class="mx-auto w-full mt-4 max-w-[1200px] px-5">
         <ul class="flex items-center">
@@ -51,7 +61,7 @@
     <section class="container flex-grow mx-auto max-w-[1200px] border-b py-5 lg:grid lg:grid-cols-2 lg:py-10">
         <!-- image gallery -->
         <div class="container mx-auto px-4">
-            <img class="w-full" src="/image/{{ $product->gambar }}" alt="image" />
+            <img class="w-full" src="{{ asset("storage/$product->gambar") }}" alt="image" />
         </div>
 
         <!-- description  -->
@@ -112,10 +122,16 @@
                     Masukkan Keranjang
                 </button>
                 </form>
-
-                <button class="flex h-12 w-1/3 items-center justify-center text-white bg-accent hover:bg-accent2">
-                    Beli Sekarang
-                </button>
+                <form action="{{ route('beli-sekarang') }}" method="POST"
+                    class="flex h-12 w-1/3 items-center justify-center text-white bg-accent hover:bg-accent2">
+                    @csrf
+                    <input type="hidden" value="{{ $product->id }}" name="product_id">
+                    <input type="hidden" value="{{ $product->harga_diskon }}" name="harga_diskon">
+                    <input type="hidden" value="{{ $product->berat }}" name="berat">
+                    <button type="submit" class="">
+                        Beli Sekarang
+                    </button>
+                </form>
             </div>
         </div>
     </section>

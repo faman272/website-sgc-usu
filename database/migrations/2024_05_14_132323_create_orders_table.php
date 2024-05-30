@@ -15,6 +15,7 @@ return new class extends Migration
             $table->char('no_order', 25)->primary();
             $table->foreignUuid('customer_id')->constrained('customers');
             $table->enum('status', ['menunggu pembayaran', 'menunggu konfirmasi', 'diproses', 'dikirim', 'dibatalkan', 'diterima'])->default('menunggu pembayaran');
+            $table->string('metode_pengiriman', 50);
             $table->decimal('ongkir', 15, 2);
             $table->decimal('total', 15, 2);
             $table->char('resi_pengiriman', 20)->nullable();

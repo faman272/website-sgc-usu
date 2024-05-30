@@ -25,6 +25,8 @@
     @include('shop.components.header')
     @include('shop.components.navbar')
 
+    
+
     <!-- breadcrumbs  -->
     <nav class="mx-auto w-full mt-4 max-w-[1200px] px-5">
         <ul class="flex items-center">
@@ -82,7 +84,7 @@
                                         </div>
 
                                         <div class="px-4 py-3 flex-col justify-center items-center">
-                                            <img src="/image/{{ $item->gambar }}" alt="" width="50%"
+                                            <img src="{{ asset("storage/$item->gambar") }}" alt="" width="50%"
                                                 class="mb-2">
                                             <p class="font-bold">{{ $item->norek }}</p>
                                             <p class="font-bold">an: {{ $item->atas_nama }}</p>

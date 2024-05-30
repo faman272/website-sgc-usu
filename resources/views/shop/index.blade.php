@@ -32,7 +32,7 @@
             <div class="flex flex-col">
                 <div class="relative flex">
                     <div class="">
-                        <img class="" src="/image/{{ $product->gambar }}" alt="sofa image" />
+                        <img class="" src="{{ asset("storage/$product->gambar") }}" alt="sofa image" />
                     </div>
                     <div
                         class="absolute flex h-full w-full items-center justify-center gap-3 opacity-0 duration-150 hover:opacity-100">

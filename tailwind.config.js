@@ -13,6 +13,9 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                Poppins: ['Poppins', ...defaultTheme.fontFamily.sans],
+                Bayon: ['Bayon', ...defaultTheme.fontFamily.sans],
+                Poetsen: ['Poetsen One', ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 'primary': '#EFF9F1',
@@ -22,5 +25,5 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [forms, require('flowbite/plugin')],
 };

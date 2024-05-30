@@ -63,10 +63,10 @@
                             <a href="profile-information.html"
                                 class="active:blue-900 text-gray-500 duration-100 hover:text-yellow-400">Informasi
                                 profil</a>
-                            <a href="manage-address.html"
+                            {{-- <a href="manage-address.html"
                                 class="text-gray-500 duration-100 hover:text-yellow-400">Kelola Alamat</a>
                             <a href="change-password.html" class="text-gray-500 duration-100 hover:text-yellow-400">Ubah
-                                Password</a>
+                                Password</a> --}}
                         </div>
                     </div>
                 </div>

@@ -25,6 +25,46 @@
     @include('shop.components.header')
     @include('shop.components.navbar')
 
+    {{-- Modal Confirmation Alert --}}
+    <div id="confirm-cancel" class="fixed hidden inset-0 bg-gray-950/50 dark:bg-gray-950/75">
+        <div class="flex items-center justify-center h-full">
+            <div class="bg-white p-5 anim-modal rounded-lg w-96">
+                {{-- CLose button --}}
+                <span class="flex justify-end">
+                    <button onclick="tutupModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6 text-gray-500">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </span>
+                <div class="mb-5 flex items-center justify-center">
+                    <div class="rounded-full p-3 bg-rose-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-8 h-8 text-rose-500">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+                        </svg>
+
+                    </div>
+                </div>
+                <p class="font-semibold text-gray-950 text-base leading-6 text-center">Cancel Order</p>
+                <p class="mt-2 text-center text-sm text-gray-500">Apakah anda yakin ingin membatalkan pesanan?</p>
+                <div class="mt-6 w-full flex gap-3">
+                    <button onclick="tutupModal()"
+                        class="px-4 py-2 bg-white shadow-md text-sm w-full rounded-lg">Cancel</button>
+                    <form action="{{ route('order-cancel', $payment->order->no_order) }}" method="POST" class="w-full">
+                        @method('PATCH')
+                        @csrf
+                        <button type="submit"
+                            class="px-4 py-2 bg-rose-500 shadow-sm text-sm w-full text-white rounded-lg">Confirm</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- /Modal Confirmation Alert --}}
+
     <!-- breadcrumbs  -->
     <nav class="mx-auto w-full mt-4 max-w-[1200px] px-5">
         <ul class="flex items-center">
@@ -100,12 +140,13 @@
                                     <tr class="h-[40px] border-b">
                                         <td class="align-middle">
                                             <div class="flex">
-                                                <img class="w-[70px]" src="/image/{{ $item->product->gambar }}"
+                                                <img class="w-[70px]" src="/storage/{{ $item->product->gambar }}"
                                                     alt="bedroom image" />
                                                 <div class="ml-3 flex flex-col justify-center">
                                                     <p class="text-md font-bold uppercase">{{ $item->product->nama }}
                                                     </p>
-                                                    <p class="text-sm text-gray-400">Berat: {{ $item->total_berat }}(gr)
+                                                    <p class="text-sm text-gray-400">Berat:
+                                                        {{ $item->total_berat }}(gr)
                                                     </p>
                                                 </div>
                                             </div>
@@ -167,14 +208,18 @@
                         </div>
 
                         {{-- Metode Pembayaran --}}
+                        @php
+                            $gambarMetode = $payment->paymentMethod->gambar;
+                        @endphp
                         <div>
                             <div class="flex w-1/2 justify-between gap-2">
                                 <div class="px-4 py-3 flex-col justify-center items-center">
-                                    <img src="/image/{{ $payment->paymentMethod->gambar }}" alt=""
-                                        width="40%" class="mb-2">
+                                    <img src="{{ asset("storage/$gambarMetode") }}" alt="" width="40%"
+                                        class="mb-2">
                                     <div class="flex justify-between gap-3">
-                                        <p class="font-bold text-xl">{{ $payment->paymentMethod->norek }}</p>
-                                        <button class="flex items-center gap-1 hover:text-[#383636]">
+                                        <p id="norek" class="font-bold text-xl">
+                                            {{ $payment->paymentMethod->norek }}</p>
+                                        <button id="salin-norek" class="flex items-center gap-1 hover:text-[#383636]">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                                 fill="none" viewBox="0 0 24 24" class="icon-sm">
                                                 <path fill="currentColor" fill-rule="evenodd"
@@ -182,6 +227,13 @@
                                                     clip-rule="evenodd"></path>
                                             </svg>
                                             <span class="font-bold">Salin</span>
+
+                                            {{-- <span class="font-bold">Disalin</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                              </svg> --}}
+
+
                                         </button>
                                     </div>
                                     <p class="mt-2">an: {{ $payment->paymentMethod->atas_nama }}</p>
@@ -189,7 +241,8 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('shop.checkout-konfirmasi-store', $payment->no_pembayaran) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('shop.checkout-konfirmasi-store', $payment->no_pembayaran) }}"
+                            method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="flex w-full gap-2 flex-col mb-6">
                                 <h2 class="underline font-semibold"><span class="text-red-500">*</span>Upload bukti
@@ -203,7 +256,8 @@
                             </button>
                         </form>
 
-                        <button
+
+                        <button onclick="bukaModal()" type="button"
                             class="w-full bg-primary hover:bg-[#f4f4f4] border border-red-500 px-5 py-2 text-red-500">
                             BATALKAN PESANAN
                         </button>
@@ -253,6 +307,37 @@
     @include('shop.components.footer')
 
 
+    <script>
+        document.getElementById('salin-norek').addEventListener('click', function() {
+            var norek = document.getElementById('norek').innerText;
+            var tempInput = document.createElement('input');
+            tempInput.style = 'position: absolute; left: -1000px; top: -1000px';
+            tempInput.value = norek;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            // Ubah tampilan tombol setelah teks berhasil disalin
+            this.innerHTML =
+                '<span class="font-bold">Disalin</span><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>';
+        });
+
+
+        // Confirm dialog
+        const confirmCancel = document.getElementById('confirm-cancel');
+
+        const bukaModal = () => {
+            confirmCancel.classList.remove('hidden');
+            confirmCancel.classList.add('block');
+        }
+
+        const tutupModal = () => {
+            confirmCancel.classList.remove('block');
+            confirmCancel.classList.add('hidden');
+        }
+
+
+    </script>
 
 </body>
 

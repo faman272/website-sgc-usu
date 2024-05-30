@@ -5,6 +5,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\DivisiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,15 +21,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Home
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// routes/web.php
 
 // Shop
 Route::get('/shop', [ProductController::class, 'index'])->name('shop.index');
 Route::get('/shop/product/{slug}', [ProductController::class, 'show'])->name('shop.show');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     // Cart Route
     Route::get('/shop/cart', [CartController::class, 'index'])
         ->name('cart.index');
@@ -69,6 +73,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/shop/checkout-konfirmasi/store/{no_pembayaran}', [CheckoutController::class, 'storeBuktiPembayaran'])->name('shop.checkout-konfirmasi-store');
 
+    // Beli Sekarang
+    Route::post('shop/product/topi-hitam-laravel', [CheckoutController::class, 'beliSekarang'])->name('beli-sekarang');
+
+    // Cancel Order
+    Route::patch('/shop/checkout-konfirmasi/cancel/{no_order}', [CheckoutController::class, 'cancelOrder'])
+        ->name('order-cancel');
 
     // Order History
     Route::get('/shop/account/order-history', [AccountController::class, 'orderHistory'])
@@ -80,16 +90,35 @@ Route::middleware('auth')->group(function () {
 });
 
 
+//  google auth
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+Route::get('/auth/google/call-back', [GoogleAuthController::class, 'callbackGoogle'])->name('google.callback');
 
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Verify email page
+Route::get('/email/verify', function () {
+    toastr()->info('Link verifikasi telah terkirim!', 'Info', ['timeOut' => 1500]);
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+
+// Divisi Pages
+Route::get('/divisi/{slug}', [DivisiController::class, 'showDevisi'])->name('divisi.show');
+
+
+
+
+
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
 
 require __DIR__ . '/auth.php';
+
+

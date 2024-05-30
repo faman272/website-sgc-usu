@@ -1,5 +1,5 @@
 ## How To Run Project
-- ```composer update``` or ```composer install```
+- ```composer update``` or ```composer install``` if you get error requirements run this ```composer update --ignore-platform-reqs```
 - create database with name ```web-sgc```
 - ```cp .env.example .env```
 - run ```php artisan key:generate```
